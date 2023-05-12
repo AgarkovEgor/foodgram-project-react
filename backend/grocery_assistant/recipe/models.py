@@ -35,8 +35,8 @@ class Tag(models.Model):
     slug = models.SlugField(unique=True) 
 
 class Ingredient(models.Model):
-    name =  models.CharField(max_length=50)
-    measurement_unit =  models.CharField(max_length=10)
+    name = models.CharField(max_length=50)
+    measurement_unit = models.CharField(max_length=10)
 
 class IngredientRecipe(models.Model):
     recipe =  models.ForeignKey(

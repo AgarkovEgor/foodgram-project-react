@@ -9,11 +9,6 @@ class UserSerializers(serializers.ModelSerializer):
         fields= ('id','email', 'username', 'first_name', 'last_name', ) #is_subscribed
         model = CustomUser
 
-class CustomUserCreateSelializer(UserCreateSerializer):
-    class Meta:
-        fields = ('email', 'username', 'first_name', 'last_name', 'password',)
-        model = CustomUser
-
 #Вопрос по полю author
 class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,4 +25,3 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'colour', 'slug',)
         model = Tag        
-        read_only_fileld = 'id', 'name', 'colour', 'slug'
