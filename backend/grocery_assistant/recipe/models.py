@@ -50,7 +50,7 @@ class IngredientRecipe(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredient_recipe'
     )
-    quantity =  models.PositiveIntegerField()
+    amount =  models.PositiveIntegerField()
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(

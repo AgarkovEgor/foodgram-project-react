@@ -3,7 +3,6 @@ from .serializers import (
     RecipeSerializer,
     IngredientSerializer,
     TagSerializer,
-    CustomUserCreateSelializer
 )
 from djoser.views import UserViewSet
 from recipe.models import Recipe, Ingredient, Tag
@@ -13,6 +12,9 @@ from users.models import CustomUser
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
