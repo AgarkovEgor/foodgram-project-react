@@ -140,15 +140,22 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.CustomPageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 DJOSER = {
     'HIDE_USERS': False,
     'PERMISSIONS':{
         'user_list': ['rest_framework.permissions.AllowAny'],
-        'user': ['rest_framework.permissions.IsAuthenticated']
+        'user': ['rest_framework.permissions.IsAuthenticated'],
+        "user_delete": ["rest_framework.permissions.IsAdminUser"],
+        "set_username": ["rest_framework.permissions.IsAdminUser"],
     },
     'SERIALIZERS':{
         'user': 'api.serializers.UserSerializers',
     }
 }
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)

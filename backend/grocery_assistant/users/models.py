@@ -10,9 +10,15 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name','last_name','username']
 
+    class Meta:
+        ordering = ('id',)
+
     @property
     def is_admin(self):
         return self.is_staff
+    
+    def __str__(self):
+        return self.username[:15]
 
 
 class Follow(models.Model):
