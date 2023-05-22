@@ -4,18 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipe', '0004_shoppingcart_favorite'),
+        ("recipe", "0004_shoppingcart_favorite"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='favorite',
-            constraint=models.UniqueConstraint(fields=('user', 'recipe'), name='unique_favorite'),
+            model_name="favorite",
+            constraint=models.UniqueConstraint(
+                fields=("user", "recipe"), name="unique_favorite"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='shoppingcart',
-            constraint=models.UniqueConstraint(fields=('user', 'recipe'), name='unique_shopping_cart'),
+            model_name="shoppingcart",
+            constraint=models.UniqueConstraint(
+                fields=("user", "recipe"), name="unique_shopping_cart"
+            ),
         ),
     ]

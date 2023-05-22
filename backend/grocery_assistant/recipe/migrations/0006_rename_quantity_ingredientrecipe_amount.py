@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipe', '0005_auto_20230509_0902'),
+        ("recipe", "0005_auto_20230509_0902"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='ingredientrecipe',
-            old_name='quantity',
-            new_name='amount',
+            model_name="ingredientrecipe",
+            old_name="quantity",
+            new_name="amount",
         ),
     ]

@@ -4,19 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0003_follow'),
+        ("users", "0003_follow"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customuser',
-            name='email',
+            model_name="customuser",
+            name="email",
             field=models.EmailField(max_length=150, unique=True),
         ),
         migrations.AddConstraint(
-            model_name='follow',
-            constraint=models.UniqueConstraint(fields=('author', 'user'), name='unique_follow'),
+            model_name="follow",
+            constraint=models.UniqueConstraint(
+                fields=("author", "user"), name="unique_follow"
+            ),
         ),
     ]
