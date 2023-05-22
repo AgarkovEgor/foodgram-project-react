@@ -12,7 +12,11 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 
     class Meta:
-        ordering = ("id",)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+    
+    def __str__(self):
+        return self.username[:15]
 
     @property
     def is_admin(self):
@@ -31,6 +35,8 @@ class Follow(models.Model):
     )
 
     class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
         constraints = (
             models.UniqueConstraint(fields=("author", "user"), name="unique_follow"),
         )

@@ -4,9 +4,9 @@ from .models import Favorite, Ingredient, IngredientRecipe, Recipe, ShoppingCart
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ("pk", "name", "color", "slug")
-    search_fields = ("name", "color", "slug")
-    list_filter = ("name", "color", "slug")
+    list_display = ("pk", "name", "colour", "slug")
+    search_fields = ("name", "colour", "slug")
+    list_filter = ("name", "colour", "slug")
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -16,7 +16,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ("pk", "name", "author", "text", "cooking_time", "image", "date")
+    list_display = ("pk", "name", "author", "text", "cooking_time", "image", "pub_date")
     search_fields = ("name", "author", "text", "cooking_time")
     list_filter = ("name", "author", "tags")
     readonly_fields = ("favarite_count",)
