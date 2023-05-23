@@ -18,4 +18,5 @@ class Command(BaseCommand):
         for i in data:
             name = i["name"]
             measurement_unit = i["measurement_unit"]
-            Ingredient.objects.create(name=name, measurement_unit=measurement_unit)
+            Ingredient.objects.bulk_create([
+                Ingredient(name=name, measurement_unit=measurement_unit)])

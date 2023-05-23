@@ -1,26 +1,18 @@
-from core.filters import NameSearchFilter
-from core.pagination import CustomPageNumberPagination
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from djoser.views import UserViewSet as DjoserUserViewSet
-from recipe.filters import RecipeFilter
-from recipe.models import (
-    Favorite,
-    Ingredient,
-    IngredientRecipe,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from users.models import CustomUser, Follow
 
+from users.models import CustomUser, Follow
+from core.filters import NameSearchFilter
+from core.pagination import CustomPageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import (
     FollowSerializer,
@@ -29,6 +21,15 @@ from .serializers import (
     ShoppingCartFavoriteSerializer,
     TagSerializer,
     UserSerializers,
+)
+from recipe.filters import RecipeFilter
+from recipe.models import (
+    Favorite,
+    Ingredient,
+    IngredientRecipe,
+    Recipe,
+    ShoppingCart,
+    Tag,
 )
 
 
@@ -43,8 +44,7 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request, *args, **kwargs):
-        author_id = request.user.follower.values_list("author_id", flat=True)
-        queryset = CustomUser.objects.filter(id__in=author_id)
+        queryset = CustomUser.objects.filter(following__user=self.request.user)
         page = self.paginate_queryset(queryset)
         serializer = FollowSerializer(
             page, many=True, context=self.get_serializer_context()
@@ -57,6 +57,7 @@ class UserViewSet(DjoserUserViewSet):
     def subscribe(self, request, *args, **kwargs):
         user = request.user
         author = get_object_or_404(CustomUser, pk=kwargs.get("id"))
+        follow_user = Follow.objects.filter(user=user, author=author)
         if request.method == "POST":
             serializer = FollowSerializer(
                 author, data=request.data, context=self.get_serializer_context()
@@ -64,12 +65,12 @@ class UserViewSet(DjoserUserViewSet):
             serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if not Follow.objects.filter(user=user, author=author).exists():
+        if not follow_user.exists():
             return Response(
                 {"errors": "Вы не подписаны на этого пользователя"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        follow = get_object_or_404(Follow, author=author, user=user)
+        follow = get_object_or_404(follow_user)
         follow.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -92,11 +93,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True, methods=["POST", "DELETE"], permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, *args, **kwargs):
-        print(args, kwargs)
         user = request.user
         recipe = get_object_or_404(Recipe, id=kwargs.get("pk"))
         if request.method == "POST":
-            print("ggggg")
             serializer = ShoppingCartFavoriteSerializer(
                 recipe, data=request.data, context=self.get_serializer_context()
             )
@@ -133,7 +132,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         text = ""
         for item in ingredients:
-            text += f'•  {item["ingredient__name"]}({item["ingredient__measurement_unit"]}) — {item["sum_amount"]}\n'
+            text += (f'•  {item["ingredient__name"]}'
+                     f'({item["ingredient__measurement_unit"]})'
+                     f'— {item["sum_amount"]}\n')
         headers = {"Content-Disposition": "attachment; filename=shopping_cart.txt"}
         return HttpResponse(
             text, content_type="text/plain; charset=UTF-8", headers=headers

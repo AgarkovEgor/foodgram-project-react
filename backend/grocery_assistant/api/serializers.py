@@ -81,12 +81,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = data.pop("tags")
         recipe = Recipe.objects.create(**data)
         recipe.tags.set(tags)
-        for ingredient in ingredients:
-            IngredientRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ingredient.get("id"),
-                amount=ingredient.get("amount"),
+        IngredientRecipe.objects.bulk_create(
+            [
+                IngredientRecipe(
+                    recipe=recipe,
+                    ingredient=ingredient["id"],
+                    amount=ingredient["amount"],)
+                
+                for ingredient in ingredients]
             )
+              
         return recipe
 
     def get_is_favorite(self, obj):
@@ -161,7 +165,7 @@ class FollowSerializer(serializers.ModelSerializer):
     def validate(self, data):
         author = self.instance
         user = self.context.get("request").user
-        if Follow.objects.filter(user=user, author=author).exists():
+        if CustomUser.follower(author=author).exists():
             raise ValidationError(
                 detail="Попытка повторной подписки",
                 code=status.HTTP_400_BAD_REQUEST,
@@ -183,7 +187,7 @@ class ShoppingCartFavoriteSerializer(serializers.ModelSerializer):
     def validate(self, data):
         recipe = self.instance
         user = self.context.get("request").user
-        if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+        if CustomUser.carts.filter(recipe=recipe).exists():
             raise ValidationError(
                 detail="Этот рецепт уже добавлен",
                 code=status.HTTP_400_BAD_REQUEST,
