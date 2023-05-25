@@ -2,7 +2,6 @@ from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
 from djoser.views import UserViewSet as DjoserUserViewSet
 
 from rest_framework import status, viewsets
@@ -65,13 +64,11 @@ class UserViewSet(DjoserUserViewSet):
             serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if not follow_user.exists():
-            return Response(
-                {"errors": "Вы не подписаны на этого пользователя"},
-                status=status.HTTP_400_BAD_REQUEST,
+        serializer = FollowSerializer(
+                author, data=request.data, context=self.get_serializer_context()
             )
-        follow = get_object_or_404(follow_user)
-        follow.delete()
+        serializer.is_valid(raise_exception=True)
+        Follow.objects.get(user=user, author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

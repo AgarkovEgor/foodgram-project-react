@@ -1,4 +1,7 @@
+from rest_framework.response import Response
+
 from drf_extra_fields.fields import Base64ImageField
+
 from recipe.models import (
     Favorite,
     Ingredient,
@@ -163,18 +166,27 @@ class FollowSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def validate(self, data):
+        method =  self.context.get("request").method
         author = self.instance
         user = self.context.get("request").user
-        if CustomUser.follower(author=author).exists():
-            raise ValidationError(
-                detail="Попытка повторной подписки",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        elif user == author:
-            raise ValidationError(
-                detail="Попытка подписки на самого себя",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
+        follow_user = Follow.objects.filter(user=user, author=author)
+        if method == "POST":
+            if follow_user.exists():
+                raise ValidationError(
+                    detail="Попытка повторной подписки",
+                    code=status.HTTP_400_BAD_REQUEST,
+                )
+            elif user == author:
+                raise ValidationError(
+                    detail="Попытка подписки на самого себя",
+                    code=status.HTTP_400_BAD_REQUEST,
+                )
+        if method == "DELETE":
+            if not follow_user.exists():
+                raise ValidationError(
+                    detail={"errors": "Вы не подписаны на этого пользователя"},  
+                    code=status.HTTP_400_BAD_REQUEST, 
+                )
         return data
 
 
