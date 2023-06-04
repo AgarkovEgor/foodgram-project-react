@@ -199,7 +199,9 @@ class ShoppingCartFavoriteSerializer(serializers.ModelSerializer):
     def validate(self, data):
         recipe = self.instance
         user = self.context.get("request").user
-        if CustomUser.carts.filter(recipe=recipe).exists():
+        related_manager_name = self.context.get("related_name")
+        getattr(user, related_manager_name)
+        if getattr(user, related_manager_name).filter(recipe=recipe).exists():
             raise ValidationError(
                 detail="Этот рецепт уже добавлен",
                 code=status.HTTP_400_BAD_REQUEST,

@@ -93,9 +93,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, id=kwargs.get("pk"))
         if request.method == "POST":
+            context=self.get_serializer_context()
+            context.update({'related_name': 'carts'})
             serializer = ShoppingCartFavoriteSerializer(
-                recipe, data=request.data, context=self.get_serializer_context()
-            )
+                recipe, data=request.data, context=context)
             serializer.is_valid(raise_exception=True)
             ShoppingCart.objects.create(user=user, recipe=recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -110,9 +111,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, id=kwargs.get("pk"))
         if request.method == "POST":
+            context=self.get_serializer_context()
+            context.update({'related_name': 'favorites'})
             serializer = ShoppingCartFavoriteSerializer(
-                recipe, data=request.data, context=self.get_serializer_context()
-            )
+                recipe, data=request.data, context=context)
             serializer.is_valid(raise_exception=True)
             Favorite.objects.create(user=user, recipe=recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
