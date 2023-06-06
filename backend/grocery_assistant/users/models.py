@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 LEN_USERNAME = 15
+
+
 class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=150,

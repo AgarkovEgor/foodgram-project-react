@@ -1,4 +1,6 @@
 from rest_framework.response import Response
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 
 from drf_extra_fields.fields import Base64ImageField
 
@@ -10,8 +12,6 @@ from recipe.models import (
     ShoppingCart,
     Tag,
 )
-from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
 from users.models import CustomUser, Follow
 
 
@@ -61,7 +61,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(many=True, source="ingredient_recipe")
     tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     image = Base64ImageField()
-    is_favorite = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
@@ -74,7 +74,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             "name",
             "text",
             "cooking_time",
-            "is_favorite",
+            "is_favorited",
             "is_in_shopping_cart",
         )
         model = Recipe
@@ -96,7 +96,7 @@ class RecipeSerializer(serializers.ModelSerializer):
               
         return recipe
 
-    def get_is_favorite(self, obj):
+    def get_is_favorited(self, obj):
         request = self.context.get("request")
         if request.user.is_anonymous:
             return False
@@ -200,8 +200,7 @@ class ShoppingCartFavoriteSerializer(serializers.ModelSerializer):
         recipe = self.instance
         user = self.context.get("request").user
         related_manager_name = self.context.get("related_name")
-        getattr(user, related_manager_name)
-        if getattr(user, related_manager_name).filter(recipe=recipe).exists():
+        if getattr(user, related_manager_name).filter(recipe=recipe).exists(): # у меня этот сериализатор на две вьюхи и этому сдедал так/ related manager меняется в зависимости от того в какой вьюхе вызываем
             raise ValidationError(
                 detail="Этот рецепт уже добавлен",
                 code=status.HTTP_400_BAD_REQUEST,
